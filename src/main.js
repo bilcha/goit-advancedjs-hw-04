@@ -1,5 +1,5 @@
-// import SimpleLightbox from "simplelightbox";
-// import "simplelightbox/dist/simple-lightbox.min.css";
+import SimpleLightbox from "simplelightbox";
+import "simplelightbox/dist/simple-lightbox.min.css";
 import iziToast from "izitoast";
 import "izitoast/dist/css/iziToast.min.css";
 
@@ -14,8 +14,19 @@ loadMoreBtn.classList.add("is-hidden");
 
 searchBtn.addEventListener('click', searchHandler);
 loadMoreBtn.addEventListener('click', loadMoreHandler);
+gallery.addEventListener("click", clickHandler);
+
 let page = 1;
-  
+
+const lightbox = new SimpleLightbox('.gallery .photo-card a');
+function clickHandler(evt) {
+  if (evt.target === evt.currentTarget) {
+    return;
+  } 
+  evt.preventDefault();
+  lightbox.open(evt.currentTarget);
+}
+
 async function searchHandler(evt) {
   evt.preventDefault();
   page = 1;
@@ -58,7 +69,9 @@ function createMarkup(data) {
   const markUp = data.map(item => {
     return `
     <div class="photo-card">
-      <div class="image-wrapper"><img src="${item.webformatURL}" alt="${item.tags}" loading="lazy" /></div>
+      <a class="image-wrapper" href="${item.largeImageURL}">
+        <img src="${item.webformatURL}" alt="${item.tags}" loading="lazy" />
+      </a>
       <div class="info">
           <p class="info-item">
             <b>Likes</b></br>
@@ -81,6 +94,7 @@ function createMarkup(data) {
 `
   }).join('');
   gallery.insertAdjacentHTML("beforeend", markUp);
+  lightbox.refresh();
 }
 
 async function loadMoreHandler(evt) {
