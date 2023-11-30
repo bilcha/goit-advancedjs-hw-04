@@ -32,7 +32,7 @@ async function searchHandler(evt) {
   page = 1;
   gallery.innerHTML = "";
   loadMoreBtn.classList.add("is-hidden");
-  const searchItem = form.elements.searchQuery.value;
+  const searchItem = form.elements.searchQuery.value.trim();
   if (searchItem.length === 0) {
     iziToast.info({
       title: 'Please add some data to search',
@@ -54,7 +54,9 @@ async function searchHandler(evt) {
         position: 'topRight'
       })
       createMarkup(data.hits);
-      loadMoreBtn.classList.remove("is-hidden");
+      if ((page * 40) > resp.data.totalHits) {
+        showWarning();
+      } else { loadMoreBtn.classList.remove("is-hidden") }  
     }
   } catch (err) {
     iziToast.error({
@@ -100,16 +102,12 @@ function createMarkup(data) {
 async function loadMoreHandler(evt) {
   evt.preventDefault();
   page += 1;
-  const searchItem = form.elements.searchQuery.value;
+  const searchItem = form.elements.searchQuery.value.trim();
   try {
     const resp = await getPageData(searchItem, page);
     createMarkup(resp.data.hits);
     if ((page * 40) > resp.data.totalHits) {
-      loadMoreBtn.classList.add("is-hidden");
-      iziToast.warning({
-        title: "We're sorry, but you've reached the end of search results.",
-        position: 'topRight'
-      })
+      showWarning();
     }
   } catch (err) {
     iziToast.error({
@@ -118,4 +116,12 @@ async function loadMoreHandler(evt) {
       position: 'topRight'
     })
   }
+}
+
+function showWarning() {
+  loadMoreBtn.classList.add("is-hidden");
+  iziToast.warning({
+    title: "We're sorry, but you've reached the end of search results.",
+    position: 'topRight'
+  })
 }
